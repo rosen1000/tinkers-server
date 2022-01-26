@@ -9,4 +9,4 @@ let db = knex({
     },
 });
 
-export default db;
+export default db
