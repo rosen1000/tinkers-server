@@ -6,6 +6,7 @@ export interface User {
 
 export interface ToolRemote {
     id: number;
+    owner: number;
     json: string;
 }
 

@@ -2,7 +2,11 @@ import { User, ToolRemote } from './db/interfaces';
 import knex from './db/database';
 import { compareSync, hashSync } from 'bcrypt';
 import Fastify from 'fastify';
+import router from './routes/authenticated';
+import { generateToken } from './utils';
 const app = Fastify();
+
+router(app);
 
 const jwtOptions = {
     secret: 'obicham_banica',
@@ -26,23 +30,22 @@ app.put('/register', async (req, _res) => {
     const username = req.body['username'];
     const password = req.body['password'];
 
-    if (
-        await knex<User>('users')
-            .select('*')
-            .where('username', username)
-            .first()
-    )
-        return { error: 'User already exists' };
+    let exists = await knex<User>('users')
+        .select('*')
+        .where('username', username)
+        .first();
+    if (exists) return { error: 'User already exists' };
 
-    knex<User>('users')
-        .insert({
-            username,
-            password: hashSync(password, 8),
-        })
-        .then((resp) => {})
-        .catch(console.log);
+    let id = await knex<User>('users').insert({
+        username,
+        password: hashSync(password, 8),
+    });
 
-    return app.jwt.sign({ sub: username, iat: Date.now() });
+    return generateToken(app, {
+        id: id[0],
+        sub: username,
+        iat: Date.now(),
+    });
 });
 
 app.post('/login', async (req, _res) => {
@@ -60,18 +63,20 @@ app.post('/login', async (req, _res) => {
     return app.jwt.sign({ sub: username, iat: Date.now() });
 });
 
-app.post('/tool', async (req, res) => {
-    let pull = await knex<ToolRemote>('tools')
-        .select('json')
-        .where('id', req.query['id'])
-        .first();
-    res.send(JSON.parse(pull.json));
-});
+// TODO: move to authenticated.ts
 
-app.post('/new-tool', async (req, res) => {
-    await knex('tools').insert({ json: JSON.stringify(req.body) });
-    res.send('ok');
-});
+// app.post('/tool', async (req, res) => {
+//     let pull = await knex<ToolRemote>('tools')
+//         .select('json')
+//         .where('id', req.query['id'])
+//         .first();
+//     res.send(JSON.parse(pull.json));
+// });
+
+// app.post('/new-tool', async (req, res) => {
+//     await knex('tools').insert({ json: JSON.stringify(req.body) });
+//     res.send('ok');
+// });
 
 app.listen(8081, (e, address) => {
     if (e) return console.error(e);
