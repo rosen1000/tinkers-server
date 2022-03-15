@@ -1,12 +1,25 @@
-import knex from 'knex';
-let db = knex({
-    client: 'mysql',
-    connection: {
-        host: '127.0.0.1',
-        user: 'admin',
-        password: process.env.DB_PASSWORD,
-        database: 'tinkers',
-    },
-});
+import { MongoClient, ObjectId } from 'mongodb';
+let url = `mongodb+srv://tinker:${process.env.DB_PASSWORD}@dva-bot.z36uu.mongodb.net/tinker?retryWrites=true&w=majority`;
+let mongo = new MongoClient(url);
 
-export default db;
+let users = mongo.db('tinker').collection<User>('users');
+let tools = mongo.db('tools').collection<Tool>('tools');
+export default { users, tools };
+
+interface User {
+  username: string;
+  password: string;
+}
+
+interface Tool {
+  owner: ObjectId;
+  tool: {
+    type: string;
+    parts: {
+      material: string;
+    }[];
+  };
+  [key: string]: any;
+}
+
+mongo.connect();
