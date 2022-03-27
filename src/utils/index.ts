@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { FastifyInstance } from 'fastify';
 export function generateToken(app: FastifyInstance, data: TokenData) {
-    app.jwt.sign(data);
+    return app.jwt.sign(data);
 }
 
 export interface TokenData {

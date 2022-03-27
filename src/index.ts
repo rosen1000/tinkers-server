@@ -19,7 +19,7 @@ app.get('/', async (req, res) => {
   res.send(data);
 });
 
-app.post('/register', async (req: RegisterRequest, _res) => {
+app.post('/register', async (req: RegisterRequest, res) => {
   let username = req.body['username'];
   let password = req.body['password'];
   if (!username) return { error: 'Username is required' };
@@ -31,11 +31,11 @@ app.post('/register', async (req: RegisterRequest, _res) => {
   password = hashSync(password, 8);
   let user = await db.users.insertOne({ username, password });
 
-  return generateToken(app, {
+  return res.send(generateToken(app, {
     id: user.insertedId,
     sub: username,
     iat: Date.now(),
-  });
+  }));
 });
 
 app.post('/login', async (req, _res) => {
