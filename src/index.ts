@@ -1,9 +1,9 @@
 import db from './db/database';
 import { compareSync, hashSync } from 'bcrypt';
 import Fastify, { FastifyRequest } from 'fastify';
-import router from './routes/authenticated';
+import router from './routes';
 import { generateToken } from './utils';
-const app = Fastify();
+const app = Fastify({logger: false});
 
 router(app);
 

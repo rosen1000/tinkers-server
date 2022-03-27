@@ -3,7 +3,7 @@ let url = `mongodb+srv://tinker:${process.env.DB_PASSWORD}@dva-bot.z36uu.mongodb
 let mongo = new MongoClient(url);
 
 let users = mongo.db('tinker').collection<User>('users');
-let tools = mongo.db('tinker').collection<Tool>('tools');
+let tools = mongo.db('tinker').collection<RemoteTool>('tools');
 export default { users, tools };
 
 export interface User {
@@ -11,13 +11,17 @@ export interface User {
   password: string;
 }
 
+export interface RemoteTool {
+  owner: string;
+  tool: Tool;
+}
+
 export interface Tool {
-  owner: ObjectId;
-  tool: {
-    type: string;
-    parts: {
-      [key: string]: { id: number; data: string; part: string };
-    };
+  name: string;
+  description: string;
+  type: string;
+  parts: {
+    [key: string]: { id: number; data: string; part: string };
   };
 }
 
