@@ -12,7 +12,7 @@ export interface User {
 }
 
 export interface RemoteTool {
-  owner: string;
+  owner: { name: string; id: string };
   tool: Tool;
 }
 
