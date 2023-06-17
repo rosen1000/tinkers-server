@@ -1,7 +1,9 @@
 import db from './db/database';
 import { compareSync, hashSync } from 'bcrypt';
 import Fastify, { FastifyRequest } from 'fastify';
+import FastifyStatic from 'fastify-static';
 import router from './routes';
+import path from 'path';
 import { generateToken } from './utils';
 const app = Fastify({logger: false});
 
@@ -13,6 +15,11 @@ const jwtOptions = {
 
 app.register(import('fastify-jwt'), { ...jwtOptions });
 app.register(import('fastify-cors'));
+
+app.register(FastifyStatic, {
+  root: path.join(__dirname, 'public'),
+  prefix: '/public/', // optional: default '/'
+});
 
 app.get('/', async (req, res) => {
   let data = await req.jwtVerify();
@@ -50,7 +57,7 @@ app.post('/login', async (req, _res) => {
   return app.jwt.sign({ id: pick._id, sub: username, iat: Date.now() });
 });
 
-app.listen(8081, (e, address) => {
+app.listen(3000, (e, address) => {
   if (e) return console.error(e);
   console.log(`Listening on ${address}`);
 });
